@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
+    <title>Prodigy - Exam Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/app.css" rel="stylesheet" />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <style>
+      .option-label {
+        transition: all 0.3s ease-in-out;
+      }
+
+      .option-label:hover,
+      .form-check-input:checked + .option-label {
+        background-color: var(--bs-primary) !important;
+        color: white !important;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+  <body x-data="examInterface">
+    <template x-if="showIntro">
+      <div
+        class="d-flex align-items-center justify-content-center vh-100 bg-dark bg-opacity-75 position-fixed w-100 top-0 start-0"
+      >
+        <div
+          class="card text-center p-4 bg-light shadow-lg rounded-4"
+          style="max-width: 400px"
+        >
+          <h2 class="fw-bold text-primary" x-text="selectedExam.subject"></h2>
+          <p class="fw-semibold" x-text="selectedExam.description"></p>
+
+          <hr />
+
+          <div class="d-flex justify-content-between text-dark fw-semibold">
+            <div>
+              <i class="bi bi-question-circle text-primary"></i>
+              Questions: <span x-text="selectedExam.questions.length"></span>
+            </div>
+            <div>
+              <i class="bi bi-clock text-danger"></i>
+              Duration: <span x-text="formatTime(selectedExam.duration)"></span>
+            </div>
+          </div>
+
+          <hr />
+
+          <p class="fs-6 text-muted">
+            Ensure you read each question carefully. You can flag questions for
+            review and navigate between them freely.
+          </p>
+
+          <button class="btn btn-success btn-lg mt-3 w-100" @click="startExam">
+            Start Exam <i class="bi bi-play-circle"></i>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <div class="wrapper">
+      <div class="main">
+        <main class="content">
+          <div class="container-fluid p-0" x-show="!showIntro">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h2
+                  class="fw-bold text-primary"
+                  x-text="selectedExam.subject"
+                ></h2>
+                <p
+                  class="fw-semibold text-dark"
+                  x-text="selectedExam.description"
+                ></p>
+              </div>
+              <h5
+                class="fw-semibold py-2 px-4 text-white bg-danger rounded-pill"
+              >
+                Time Left: <span x-text="formatTime(timer)"></span>
+              </h5>
+            </div>
+            <hr />
+
+            <div class="row">
+              <div class="col-md-8">
+                <div class="card p-4">
+                  <div
+                    class="d-flex align-items-center justify-content-between mb-3"
+                  >
+                    <h4 class="text-dark mb-0">
+                      <strong>
+                        Question <span x-text="currentQuestion + 1"></span> of
+                        <span x-text="selectedExam.questions.length"></span>
+                      </strong>
+                    </h4>
+                    <button
+                      @click="flagQuestion"
+                      class="btn btn-outline-warning btn-sm"
+                      title="Flag this question"
+                    >
+                      <i class="bi bi-flag-fill"></i>
+                    </button>
+                  </div>
+
+                  <p
+                    class="lead"
+                    x-text="selectedExam.questions[currentQuestion].text"
+                  ></p>
+
+                  <div class="mt-4">
+                    <template
+                      x-for="(option, index) in selectedExam.questions[currentQuestion].options"
+                      :key="index"
+                    >
+                      <div class="form-check my-3">
+                        <input
+                          class="form-check-input position-absolute opacity-0"
+                          type="radio"
+                          :id="'option' + index"
+                          :name="'question' + currentQuestion"
+                          x-model="answers[currentQuestion]"
+                          :value="option"
+                        />
+                        <label
+                          class="option-label form-check-label d-block px-3 py-2 cursor-pointer bg-light rounded fw-semibold"
+                          :class="{
+                            'bg-primary text-white': answers[currentQuestion] === option,
+                            'bg-light text-dark': answers[currentQuestion] !== option
+                          }"
+                          :for="'option' + index"
+                          x-text="option"
+                        ></label>
+                      </div>
+                    </template>
+                  </div>
+
+                  <div
+                    class="mt-4 d-flex justify-content-between align-items-center"
+                  >
+                    <button
+                      class="btn btn-outline-secondary btn-lg px-4"
+                      @click="prevQuestion"
+                      :disabled="currentQuestion === 0"
+                    >
+                      <i class="bi bi-arrow-left"></i> Prev
+                    </button>
+                    <button
+                      x-show="currentQuestion !== selectedExam.questions.length - 1"
+                      class="btn btn-primary btn-lg px-4"
+                      @click="nextQuestion"
+                    >
+                      Next <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <button
+                      x-show="currentQuestion === selectedExam.questions.length - 1"
+                      class="btn btn-danger btn-lg px-4"
+                      @click="showConfirmModal = true"
+                    >
+                      Submit Exam
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="card p-3">
+                  <h5 class="text-center text-dark fw-semibold mb-3">
+                    Question Review
+                  </h5>
+                  <div
+                    class="d-flex flex-wrap justify-content-center align-items-center gap-1"
+                  >
+                    <template
+                      x-for="(question, index) in selectedExam.questions"
+                      :key="index"
+                    >
+                      <button
+                        style="width: 32px; height: 32px"
+                        class="btn btn-sm fw-bold rounded-circle"
+                        :class="{'bg-warning text-white': flagged[index], 'bg-success text-white': answers[index], 'bg-danger text-white': !answers[index] && !flagged[index]}"
+                        @click="currentQuestion = index"
+                        x-text="index + 1"
+                      ></button>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- 5-minute Alert -->
+    <div
+      x-show="showNotification"
+      class="alert alert-warning position-fixed top-0 end-0 fw-bold p-3 m-3"
+      style="border: 1px solid rgb(255, 230, 156); color: rgb(102, 77, 3)"
+    >
+      <i class="bi bi-hourglass-split display-6 me-3"></i>
+      <div>
+        <strong class="fs-5">5 MINUTES REMAINING!</strong><br />
+        <span class="small">Hurry up and finalize your answers.</span>
+      </div>
+    </div>
+
+    <!-- Confirm Submission Modal -->
+    <div
+      class="modal fade"
+      :class="{ 'show d-block': showConfirmModal }"
+      tabindex="-1"
+      aria-labelledby="submitModalLabel"
+      aria-hidden="true"
+      style="background-color: rgba(0, 0, 0, 0.5)"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="submitModalLabel">
+              Confirm Submission
+            </h5>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to submit the exam?
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="showConfirmModal = false"
+            >
+              Cancel
+            </button>
+            <button type="button" class="btn btn-success" @click="submitExam">
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("examInterface", () => ({
+          showIntro: true,
+          selectedExam: null,
+          answers: {},
+          flagged: {},
+          currentQuestion: 0,
+          timer: 0,
+          timerInterval: null,
+          showConfirmModal: false,
+          showNotification: false,
+
+          exams: [
+            {
+              id: "EXM001",
+              subject: "Mathematics",
+              description:
+                "Mathematics Final Exam covering Algebra and Calculus.",
+              date: "2025-08-12",
+              startTime: "10:00 AM",
+              duration: 5400,
+              status: "Pending",
+              questions: [
+                { text: "What is 2 + 2?", options: ["3", "4", "5", "6"] },
+                { text: "What is 5 x 3?", options: ["8", "15", "10", "20"] },
+              ],
+            },
+            {
+              id: "EXM003",
+              subject: "Chemistry",
+              description:
+                "Chemistry Final Exam on Organic Chemistry and Chemical Reactions.",
+              date: "2025-08-18",
+              startTime: "2:00 PM",
+              duration: 4500,
+              status: "Pending",
+              questions: [
+                {
+                  text: "What is the atomic number of Carbon?",
+                  options: ["6", "12", "14", "16"],
+                },
+                {
+                  text: "What is the chemical symbol for Gold?",
+                  options: ["Ag", "Au", "Pb", "Fe"],
+                },
+              ],
+            },
+            {
+              id: "EXM005",
+              subject: "English Language",
+              description:
+                "English Language Exam testing grammar, comprehension, and writing skills.",
+              date: "2025-08-07",
+              startTime: "3:00 PM",
+              duration: 3000,
+              status: "Pending",
+              questions: [
+                {
+                  text: "Which of these is a noun?",
+                  options: ["Run", "Happy", "Apple", "Quickly"],
+                },
+                {
+                  text: "What is the synonym of 'big'?",
+                  options: ["Small", "Large", "Tiny", "Short"],
+                },
+              ],
+            },
+            {
+              id: "EXM008",
+              subject: "Geography",
+              description:
+                "Geography Exam on Physical Geography and Environmental Issues.",
+              date: "2025-08-09",
+              startTime: "4:00 PM",
+              duration: 305,
+              status: "In Progress",
+              questions: [
+                {
+                  text: "What is the capital of France?",
+                  options: ["Berlin", "Madrid", "Paris", "Lisbon"],
+                },
+                {
+                  text: "Which continent is the largest?",
+                  options: ["Africa", "Asia", "Europe", "Australia"],
+                },
+                {
+                  text: "What is the longest river in the world?",
+                  options: ["Amazon", "Nile", "Mississippi", "Yangtze"],
+                },
+                {
+                  text: "Which layer of the Earth's atmosphere contains the ozone layer?",
+                  options: [
+                    "Troposphere",
+                    "Stratosphere",
+                    "Mesosphere",
+                    "Thermosphere",
+                  ],
+                },
+                {
+                  text: "What is the main cause of global warming?",
+                  options: [
+                    "Deforestation",
+                    "Greenhouse gas emissions",
+                    "Volcanic eruptions",
+                    "Solar flares",
+                  ],
+                },
+              ],
+            },
+            {
+              id: "EXM010",
+              subject: "Literature",
+              description:
+                "Literature Exam on Shakespeare and 19th Century Novels.",
+              date: "2025-08-11",
+              startTime: "12:30 PM",
+              duration: 4500,
+              status: "Pending",
+              questions: [
+                {
+                  text: "Who wrote 'Romeo and Juliet'?",
+                  options: ["Shakespeare", "Hemingway", "Austen", "Dickens"],
+                },
+                {
+                  text: "What is the main theme of '1984'?",
+                  options: ["Freedom", "Totalitarianism", "Love", "War"],
+                },
+              ],
+            },
+            {
+              id: "EXM011",
+              subject: "Accounting",
+              description:
+                "Accounting Exam on Financial Statements and Costing.",
+              date: "2025-08-13",
+              startTime: "2:00 PM",
+              duration: 3600,
+              status: "Pending",
+              questions: [
+                {
+                  text: "What is a balance sheet?",
+                  options: [
+                    "Income statement",
+                    "Financial position",
+                    "Trial balance",
+                    "Expense report",
+                  ],
+                },
+                {
+                  text: "What does GAAP stand for?",
+                  options: [
+                    "Generally Accepted Accounting Principles",
+                    "Global Accounting Advisory Program",
+                    "General Asset Allocation Plan",
+                    "Government Audit Accounting Process",
+                  ],
+                },
+              ],
+            },
+            {
+              id: "EXM012",
+              subject: "History",
+              description:
+                "History Exam covering World Wars and Historical Movements.",
+              date: "2025-08-17",
+              startTime: "9:30 AM",
+              duration: 4200,
+              status: "Pending",
+              questions: [
+                {
+                  text: "When did World War II end?",
+                  options: ["1943", "1945", "1950", "1960"],
+                },
+                {
+                  text: "Who was the first President of the USA?",
+                  options: [
+                    "Abraham Lincoln",
+                    "George Washington",
+                    "Thomas Jefferson",
+                    "John Adams",
+                  ],
+                },
+              ],
+            },
+            {
+              id: "EXM015",
+              subject: "Civic Education",
+              description:
+                "Civic Education Exam on Nigerian Constitution and Governance.",
+              date: "2025-08-19",
+              startTime: "3:30 PM",
+              duration: 3000,
+              status: "Pending",
+              questions: [
+                {
+                  text: "Who is the current President of Nigeria?",
+                  options: ["Buhari", "Tinubu", "Jonathan", "Obasanjo"],
+                },
+                {
+                  text: "What is the capital of Nigeria?",
+                  options: ["Lagos", "Abuja", "Kano", "Port Harcourt"],
+                },
+              ],
+            },
+          ],
+
+          init() {
+            // Get the examId from the URL
+            const params = new URLSearchParams(window.location.search);
+            const examId = params.get("examId");
+
+            // Find the matching exam
+            if (examId) {
+              this.selectedExam =
+                this.exams.find((exam) => exam.id === examId) || null;
+            }
+          },
+
+          prevQuestion() {
+            if (this.currentQuestion > 0) this.currentQuestion--;
+          },
+
+          nextQuestion() {
+            if (this.currentQuestion < this.selectedExam.questions.length - 1)
+              this.currentQuestion++;
+          },
+
+          flagQuestion() {
+            this.flagged[this.currentQuestion] =
+              !this.flagged[this.currentQuestion];
+          },
+
+          startExam() {
+            this.showIntro = false;
+            this.timer = this.selectedExam.duration;
+
+            this.timerInterval = setInterval(() => {
+              if (this.timer > 0) {
+                this.timer--;
+
+                // Show notification when 5 minutes (300 seconds) are left
+                if (this.timer === 300) {
+                  this.showNotification = true;
+
+                  // Hide notification after 5 seconds
+                  setTimeout(() => {
+                    this.showNotification = false;
+                  }, 5000);
+                }
+              } else {
+                clearInterval(this.timerInterval);
+
+                // Auto-submit when time is up
+                this.submitExam();
+              }
+            }, 1000);
+          },
+
+          submitExam() {
+            this.showConfirmModal = false;
+            alert("Your exam has been submitted successfully!");
+            window.location.href = "candidateDashboard.html";
+          },
+
+          formatTime(seconds) {
+            let hr = Math.floor(seconds / 3600);
+            let min = Math.floor((seconds % 3600) / 60);
+            let sec = seconds % 60;
+            return `${hr}h ${min}m ${sec}s`;
+          },
+        }));
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
+    <title>Prodigy - Exam Groups</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/app.css" rel="stylesheet" />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <nav id="sidebar" class="sidebar js-sidebar">
+        <div class="sidebar-content js-simplebar">
+          <a class="sidebar-brand mb-3" href="#">
+            <i class="bi bi-mortarboard align-middle"></i>
+            <span class="align-middle ms-1 fs-4">Prodigy CBT</span>
+          </a>
+
+          <ul class="sidebar-nav">
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="adminDashboard.html">
+                <i class="bi bi-speedometer2 align-middle"></i>
+                <span class="align-middle">Dashboard</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item active">
+              <a
+                data-bs-target="#exams"
+                data-bs-toggle="collapse"
+                class="sidebar-link collapsed"
+                aria-expanded="false"
+              >
+                <i class="bi bi-clipboard-check align-middle"></i>
+                <span class="align-middle">Exams</span>
+              </a>
+              <ul
+                id="exams"
+                class="sidebar-dropdown list-unstyled collapse"
+                data-bs-parent="#sidebar"
+              >
+                <li class="sidebar-item">
+                  <a class="sidebar-link" href="manageExams.html"
+                    >Manage Exams</a
+                  >
+                </li>
+                <li class="sidebar-item active">
+                  <a class="sidebar-link" href="examGroups.html">Exam Groups</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="manageUsers.html">
+                <i class="bi bi-people align-middle"></i>
+                <span class="align-middle">Users</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="main">
+        <nav class="navbar navbar-expand navbar-light navbar-bg">
+          <a class="sidebar-toggle js-sidebar-toggle">
+            <i class="hamburger align-self-center"></i>
+          </a>
+
+          <div class="navbar-collapse collapse">
+            <ul class="navbar-nav navbar-align">
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-icon dropdown-toggle d-inline-block d-sm-none"
+                  href="#"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="align-middle" data-feather="settings"></i>
+                </a>
+
+                <a
+                  class="nav-link dropdown-toggle d-none d-sm-inline-block"
+                  href="#"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="align-middle" data-feather="user"></i>
+                  <span class="text-dark align-middle">John Doe</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end">
+                  <a class="dropdown-item" href="signIn.html"
+                    ><i class="align-middle me-1" data-feather="log-out"></i>
+                    Log out</a
+                  >
+                </div>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <main class="content" x-data="examGroups()">
+          <div class="container-fluid p-0">
+            <h1 class="mb-4 text-secondary">Manage Exam Groups</h1>
+
+            <div class="card">
+              <div
+                class="card-header d-flex flex-column gap-3 flex-sm-row mb-3"
+              >
+                <div
+                  class="d-flex flex-column flex-sm-row align-self-md-center align-self-start"
+                >
+                  <select class="form-select" x-model="filters.group">
+                    <option value="SS1">SS1</option>
+                    <option value="SS2">SS2</option>
+                    <option value="SS3">SS3</option>
+                  </select>
+                </div>
+
+                <div
+                  class="d-flex flex-column flex-sm-row align-self-md-center align-self-start"
+                >
+                  <select class="form-select" x-model="filters.exam">
+                    <template
+                      x-for="exam in exams.filter(exam => exam.group === filters.group)"
+                      :key="exam.id"
+                    >
+                      <option
+                        :value="exam.subject"
+                        x-text="exam.subject"
+                      ></option>
+                    </template>
+                  </select>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <ul class="nav nav-tabs" id="examTab" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link active"
+                      id="submissions-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#submissions"
+                      role="tab"
+                    >
+                      Submissions
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link"
+                      id="questions-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#questions"
+                      role="tab"
+                    >
+                      Questions
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link"
+                      id="candidates-tab"
+                      data-bs-toggle="tab"
+                      data-bs-target="#candidates"
+                      role="tab"
+                    >
+                      Candidates
+                    </button>
+                  </li>
+                </ul>
+
+                <div class="tab-content mt-3" id="examTabContent">
+                  <div
+                    class="tab-pane fade show active"
+                    id="submissions"
+                    role="tabpanel"
+                  >
+                    <div class="table-responsive">
+                      <table class="table table-striped table-hover">
+                        <thead class="table-primary">
+                          <tr>
+                            <th scope="col">Candidate</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Score</th>
+                            <th scope="col">Actions</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <template
+                            x-for="submission in paginatedItems(selectedExam.submissions)"
+                            :key="submission.id"
+                          >
+                            <tr>
+                              <td x-text="submission.candidate"></td>
+                              <td x-text="submission.status"></td>
+                              <td
+                                x-text="submission.score ? submission.score : '-'"
+                              ></td>
+                              <td>
+                                <span class="d-flex gap-2">
+                                  <button
+                                    class="btn btn-sm btn-warning text-dark transition-all hover:bg-opacity-75"
+                                    @click="openGradeSubmissionModal(submission)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Grade"
+                                    :disabled="submission.status === 'Graded'"
+                                  >
+                                    <i class="bi bi-pencil-square"></i>
+                                  </button>
+
+                                  <button
+                                    class="btn btn-sm btn-danger transition-all hover:bg-opacity-75"
+                                    @click="showDeleteSubmissionModal = true; selectedSubmission = submission"
+                                  >
+                                    <i class="bi bi-trash"></i>
+                                  </button>
+                                </span>
+                              </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div
+                      class="d-flex flex-column flex-md-row justify-content-between mt-4"
+                    >
+                      <p x-show="selectedExam.submissions.length &lt; 1">
+                        No entries found
+                      </p>
+                      <p x-show="selectedExam.submissions.length > 0">
+                        Showing
+                        <span x-text="firstItem"></span>
+                        -
+                        <span
+                          x-text="lastItem(selectedExam.submissions)"
+                        ></span>
+                        of
+                        <span x-text="selectedExam.submissions.length"></span>
+                        entries
+                      </p>
+                      <nav
+                        aria-label="Page navigation"
+                        x-show="selectedExam.submissions.length > 10"
+                      >
+                        <ul
+                          class="pagination pagination-sm justify-content-center"
+                        >
+                          <li class="page-item">
+                            <button
+                              @click="goToPage(currentPage - 1, selectedExam.submissions)"
+                              :disabled="currentPage === 1"
+                              class="page-link"
+                            >
+                              <span aria-hidden="true">&laquo;</span>
+                            </button>
+                          </li>
+
+                          <template
+                            x-for="page in totalPages(selectedExam.submissions)"
+                            :key="page"
+                          >
+                            <li
+                              class="page-item"
+                              :class="{'active': currentPage === page}"
+                            >
+                              <button
+                                @click="goToPage(page, selectedExam.submissions)"
+                                class="page-link"
+                                x-text="page"
+                              ></button>
+                            </li>
+                          </template>
+
+                          <li class="page-item">
+                            <button
+                              @click="goToPage(currentPage + 1, selectedExam.submissions)"
+                              :disabled="currentPage === totalPages(selectedExam.submissions)"
+                              class="page-link"
+                            >
+                              <span aria-hidden="true">&raquo;</span>
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+
+                    <!-- Grade Submission Modal -->
+                    <div
+                      class="modal fade"
+                      :class="{ 'show d-block': showGradeSubmissionModal }"
+                      tabindex="-1"
+                      aria-labelledby="gradeSubmissionModalLabel"
+                      aria-hidden="true"
+                      style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5
+                              class="modal-title"
+                              id="gradeSubmissionModalLabel"
+                            >
+                              Grade Submission
+                            </h5>
+                          </div>
+
+                          <form @submit.prevent="updateSubmission()">
+                            <div class="modal-body">
+                              <div class="mb-3">
+                                <label for="submissionScore" class="form-label"
+                                  >Enter Score</label
+                                >
+                                <input
+                                  type="number"
+                                  id="submissionScore"
+                                  class="form-control"
+                                  min="0"
+                                  max="100"
+                                  x-model="tempSubmission.score"
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div class="modal-footer">
+                              <button
+                                type="button"
+                                class="btn btn-secondary"
+                                @click="resetSubmission(); showGradeSubmissionModal = false"
+                              >
+                                Cancel
+                              </button>
+                              <button type="submit" class="btn btn-success">
+                                Submit
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Delete Submission Modal -->
+                    <div
+                      class="modal fade"
+                      :class="{ 'show d-block': showDeleteSubmissionModal }"
+                      tabindex="-1"
+                      aria-labelledby="deleteSubmissionModalLabel"
+                      aria-hidden="true"
+                      style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5
+                              class="modal-title"
+                              id="deleteSubmissionModalLabel"
+                            >
+                              Delete Submission
+                            </h5>
+                          </div>
+                          <div class="modal-body">
+                            Are you sure you want to delete this submission?
+                          </div>
+                          <div class="modal-footer">
+                            <button
+                              type="button"
+                              class="btn btn-secondary"
+                              @click="showDeleteSubmissionModal = false; selectedSubmission = null"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-danger"
+                              @click="deleteSubmission"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tab-pane fade" id="questions" role="tabpanel">
+                    <button
+                      class="btn btn-primary mb-3"
+                      @click="showAddQuestionModal = true"
+                    >
+                      Add Question
+                    </button>
+
+                    <template
+                      x-for="question in paginatedItems(selectedExam.questions)"
+                      :key="question.id"
+                    >
+                      <div class="card bg-light mb-3">
+                        <div class="card-body">
+                          <h5
+                            class="fw-semibold text-dark"
+                            x-text="question.question"
+                          ></h5>
+
+                          <strong>Options:</strong>
+                          <ul class="d-flex gap-2 list-unstyled mt-1">
+                            <template
+                              x-for="(option, index) in question.options"
+                              :key="index"
+                            >
+                              <li>
+                                <span
+                                  class="fw-bold"
+                                  x-text="'(' + String.fromCharCode(97 + index) + ') '"
+                                ></span>
+                                <span x-text="option"></span>
+                              </li>
+                            </template>
+                          </ul>
+
+                          <span class="d-flex gap-2">
+                            <button
+                              class="btn btn-sm btn-warning text-dark transition-all hover:bg-opacity-75"
+                              @click="openEditQuestionModal(question)"
+                            >
+                              <i class="bi bi-pencil-square"></i>
+                            </button>
+
+                            <button
+                              class="btn btn-sm btn-danger transition-all hover:bg-opacity-75"
+                              @click="showDeleteQuestionModal = true; selectedQuestion = question"
+                            >
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </span>
+                        </div>
+                      </div>
+                    </template>
+
+                    <div
+                      class="d-flex flex-column flex-md-row justify-content-between mt-4"
+                    >
+                      <p x-show="selectedExam.questions.length &lt; 1">
+                        No entries found
+                      </p>
+                      <p x-show="selectedExam.questions.length > 0">
+                        Showing
+                        <span x-text="firstItem"></span>
+                        -
+                        <span x-text="lastItem(selectedExam.questions)"></span>
+                        of
+                        <span x-text="selectedExam.questions.length"></span>
+                        entries
+                      </p>
+                      <nav
+                        aria-label="Page navigation"
+                        x-show="selectedExam.questions.length > 10"
+                      >
+                        <ul
+                          class="pagination pagination-sm justify-content-center"
+                        >
+                          <li class="page-item">
+                            <button
+                              @click="goToPage(currentPage - 1, selectedExam.questions)"
+                              :disabled="currentPage === 1"
+                              class="page-link"
+                            >
+                              <span aria-hidden="true">&laquo;</span>
+                            </button>
+                          </li>
+
+                          <template
+                            x-for="page in totalPages(selectedExam.questions)"
+                            :key="page"
+                          >
+                            <li
+                              class="page-item"
+                              :class="{'active': currentPage === page}"
+                            >
+                              <button
+                                @click="goToPage(page, selectedExam.questions)"
+                                class="page-link"
+                                x-text="page"
+                              ></button>
+                            </li>
+                          </template>
+
+                          <li class="page-item">
+                            <button
+                              @click="goToPage(currentPage + 1, selectedExam.questions)"
+                              :disabled="currentPage === totalPages(selectedExam.questions)"
+                              class="page-link"
+                            >
+                              <span aria-hidden="true">&raquo;</span>
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+
+                    <!-- Modal for adding a new question -->
+                    <div
+                      class="modal fade"
+                      :class="{ 'show d-block': showAddQuestionModal }"
+                      tabindex="-1"
+                      aria-labelledby="addQuestionModalLabel"
+                      aria-hidden="true"
+                      style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="addQuestionModalLabel">
+                              Add New Question
+                            </h5>
+                          </div>
+
+                          <form @submit.prevent="addQuestion($event)">
+                            <div class="modal-body">
+                              <div class="mb-3">
+                                <label for="question" class="form-label"
+                                  >Question</label
+                                >
+                                <textarea
+                                  class="form-control"
+                                  id="question"
+                                  x-model="newQuestion.question"
+                                  required
+                                ></textarea>
+                              </div>
+
+                              <div class="mb-3">
+                                <label class="form-label">Options</label>
+                                <template
+                                  x-for="(option, index) in newQuestion.options"
+                                  :key="index"
+                                >
+                                  <div class="mb-2">
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      :placeholder="'(' + String.fromCharCode(97 + index) + ') Option ' + (index + 1)"
+                                      x-model="newQuestion.options[index]"
+                                      required
+                                    />
+                                  </div>
+                                </template>
+                              </div>
+                            </div>
+
+                            <div class="modal-footer">
+                              <button
+                                type="reset"
+                                class="btn btn-secondary"
+                                @click="showAddQuestionModal = false"
+                              >
+                                Cancel
+                              </button>
+
+                              <button type="submit" class="btn btn-success">
+                                Submit
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Edit Question Modal -->
+                    <div
+                      class="modal fade"
+                      :class="{ 'show d-block': showEditQuestionModal }"
+                      tabindex="-1"
+                      aria-labelledby="editQuestionModalLabel"
+                      aria-hidden="true"
+                      style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="editQuestionModalLabel">
+                              Edit Question
+                            </h5>
+                          </div>
+
+                          <form @submit.prevent="updateQuestion()">
+                            <div class="modal-body">
+                              <div class="mb-3">
+                                <label for="question" class="form-label"
+                                  >Question</label
+                                >
+                                <textarea
+                                  class="form-control"
+                                  id="question"
+                                  x-model="tempQuestion.question"
+                                  required
+                                ></textarea>
+                              </div>
+
+                              <div class="mb-3">
+                                <label class="form-label">Options</label>
+                                <template
+                                  x-for="(option, index) in tempQuestion.options"
+                                  :key="index"
+                                >
+                                  <div class="mb-2">
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      :placeholder="'(' + String.fromCharCode(97 + index) + ') Option ' + (index + 1)"
+                                      x-model="tempQuestion.options[index]"
+                                      required
+                                    />
+                                  </div>
+                                </template>
+                              </div>
+                            </div>
+
+                            <div class="modal-footer">
+                              <button
+                                type="button"
+                                class="btn btn-secondary"
+                                @click="resetQuestion(); showEditQuestionModal = false"
+                              >
+                                Cancel
+                              </button>
+
+                              <button type="submit" class="btn btn-success">
+                                Save Changes
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Delete Question Modal -->
+                    <div
+                      class="modal fade"
+                      :class="{ 'show d-block': showDeleteQuestionModal }"
+                      tabindex="-1"
+                      aria-labelledby="deleteQuestionModalLabel"
+                      aria-hidden="true"
+                      style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5
+                              class="modal-title"
+                              id="deleteQuestionModalLabel"
+                            >
+                              Delete Question
+                            </h5>
+                          </div>
+                          <div class="modal-body">
+                            Are you sure you want to delete this question?
+                          </div>
+                          <div class="modal-footer">
+                            <button
+                              type="button"
+                              class="btn btn-secondary"
+                              @click="showDeleteQuestionModal = false; selectedQuestion = null"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-danger"
+                              @click="deleteQuestion()"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tab-pane fade" id="candidates" role="tabpanel">
+                    <div class="d-grid gap-2 d-md-block mb-3">
+                      <button
+                        class="btn btn-primary"
+                        @click="showAddCandidateModal = true"
+                      >
+                        Add Candidate
+                      </button>
+
+                      <button
+                        class="btn btn-secondary"
+                        @click="showBulkCandidateUploadModal = true"
+                      >
+                        Bulk Upload
+                      </button>
+                    </div>
+
+                    <div class="table-responsive">
+                      <table class="table table-striped table-hover">
+                        <thead class="table-primary">
+                          <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Sex</th>
+                            <th scope="col">Actions</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <template
+                            x-for="candidate in paginatedItems(selectedExam.candidates)"
+                            :key="candidate.id"
+                          >
+                            <tr>
+                              <td x-text="candidate.name"></td>
+                              <td x-text="candidate.email"></td>
+                              <td x-text="candidate.sex"></td>
+                              <td>
+                                <span class="d-flex gap-2">
+                                  <button
+                                    class="btn btn-sm btn-warning text-dark transition-all hover:bg-opacity-75"
+                                    @click="openEditCandidateModal(candidate)"
+                                  >
+                                    <i class="bi bi-pencil-square"></i>
+                                  </button>
+
+                                  <button
+                                    class="btn btn-sm btn-danger transition-all hover:bg-opacity-75"
+                                    @click="showDeleteCandidateModal = true; selectedCandidate = candidate"
+                                  >
+                                    <i class="bi bi-trash"></i>
+                                  </button>
+                                </span>
+                              </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div
+                      class="d-flex flex-column flex-md-row justify-content-between mt-4"
+                    >
+                      <p x-show="selectedExam.candidates.length &lt; 1">
+                        No entries found
+                      </p>
+                      <p x-show="selectedExam.candidates.length > 0">
+                        Showing
+                        <span x-text="firstItem"></span>
+                        -
+                        <span x-text="lastItem(selectedExam.candidates)"></span>
+                        of
+                        <span x-text="selectedExam.candidates.length"></span>
+                        entries
+                      </p>
+                      <nav
+                        aria-label="Page navigation"
+                        x-show="selectedExam.candidates.length > 10"
+                      >
+                        <ul
+                          class="pagination pagination-sm justify-content-center"
+                        >
+                          <li class="page-item">
+                            <button
+                              @click="goToPage(currentPage - 1, selectedExam.candidates)"
+                              :disabled="currentPage === 1"
+                              class="page-link"
+                            >
+                              <span aria-hidden="true">&laquo;</span>
+                            </button>
+                          </li>
+
+                          <template
+                            x-for="page in totalPages(selectedExam.candidates)"
+                            :key="page"
+                          >
+                            <li
+                              class="page-item"
+                              :class="{'active': currentPage === page}"
+                            >
+                              <button
+                                @click="goToPage(page, selectedExam.candidates)"
+                                class="page-link"
+                                x-text="page"
+                              ></button>
+                            </li>
+                          </template>
+
+                          <li class="page-item">
+                            <button
+                              @click="goToPage(currentPage + 1, selectedExam.candidates)"
+                              :disabled="currentPage === totalPages(selectedExam.candidates)"
+                              class="page-link"
+                            >
+                              <span aria-hidden="true">&raquo;</span>
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+
+                    <!-- Modal for adding a single candidate -->
+                    <div
+                      class="modal fade"
+                      :class="{ 'show d-block': showAddCandidateModal }"
+                      tabindex="-1"
+                      aria-labelledby="addCandidateModalLabel"
+                      aria-hidden="true"
+                      style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="addCandidateModalLabel">
+                              Add Candidate
+                            </h5>
+                          </div>
+
+                          <form @submit.prevent="addCandidate($event)">
+                            <div class="modal-body">
+                              <div class="mb-3">
+                                <label for="name" class="form-label"
+                                  >Name</label
+                                >
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  id="name"
+                                  x-model="newCandidate.name"
+                                  required
+                                />
+                              </div>
+
+                              <div class="mb-3">
+                                <label for="email" class="form-label"
+                                  >Email</label
+                                >
+                                <input
+                                  type="email"
+                                  class="form-control"
+                                  id="email"
+                                  x-model="newCandidate.email"
+                                  required
+                                />
+                              </div>
+
+                              <div class="mb-3">
+                                <label for="sex" class="form-label">Sex</label>
+                                <select
+                                  class="form-select"
+                                  id="sex"
+                                  x-model="newCandidate.sex"
+                                  required
+                                >
+                                  <option value="">Select Sex</option>
+                                  <option value="Male">Male</option>
+                                  <option value="Female">Female</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="modal-footer">
+                              <button
+                                type="reset"
+                                class="btn btn-secondary"
+                                @click="showAddCandidateModal = false"
+                              >
+                                Cancel
+                              </button>
+                              <button type="submit" class="btn btn-success">
+                                Submit
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Modal for bulk uploading candidates -->
+                    <div
+                      class="modal fade"
+                      :class="{ 'show d-block': showBulkCandidateUploadModal }"
+                      tabindex="-1"
+                      aria-labelledby="bulkCandidateUploadModal"
+                      aria-hidden="true"
+                      style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5
+                              class="modal-title"
+                              id="bulkCandidateUploadModal"
+                            >
+                              Bulk Upload Candidates
+                            </h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                              aria-label="Close"
+                              @click="showBulkCandidateUploadModal = false"
+                            ></button>
+                          </div>
+
+                          <form @submit.prevent="bulkUploadCandidates($event)">
+                            <div class="modal-body">
+                              <div class="mb-3">
+                                <label for="uploadFile" class="form-label"
+                                  >Upload CSV File</label
+                                >
+                                <input
+                                  type="file"
+                                  class="form-control"
+                                  id="uploadFile"
+                                  name="file"
+                                  accept=".csv"
+                                  required
+                                />
+                              </div>
+                              <button
+                                type="submit"
+                                class="btn btn-success w-100"
+                              >
+                                Upload
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Edit Candidate Modal -->
+                    <div
+                      class="modal fade"
+                      :class="{ 'show d-block': showEditCandidateModal }"
+                      tabindex="-1"
+                      aria-labelledby="editCandidateModalLabel"
+                      aria-hidden="true"
+                      style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5
+                              class="modal-title"
+                              id="editCandidateModalLabel"
+                            >
+                              Edit Candidate Details
+                            </h5>
+                          </div>
+
+                          <form @submit.prevent="updateCandidate()">
+                            <div class="modal-body">
+                              <div class="mb-3">
+                                <label for="name" class="form-label"
+                                  >Name</label
+                                >
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  id="name"
+                                  x-model="tempCandidate.name"
+                                  required
+                                />
+                              </div>
+
+                              <div class="mb-3">
+                                <label for="email" class="form-label"
+                                  >Email</label
+                                >
+                                <input
+                                  type="email"
+                                  class="form-control"
+                                  id="email"
+                                  x-model="tempCandidate.email"
+                                  required
+                                />
+                              </div>
+
+                              <div class="mb-3">
+                                <label for="sex" class="form-label">Sex</label>
+                                <select
+                                  class="form-select"
+                                  id="sex"
+                                  x-model="tempCandidate.sex"
+                                  required
+                                >
+                                  <option value="Male">Male</option>
+                                  <option value="Female">Female</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="modal-footer">
+                              <button
+                                type="button"
+                                class="btn btn-secondary"
+                                @click="resetCandidate(); showEditCandidateModal = false"
+                              >
+                                Cancel
+                              </button>
+
+                              <button type="submit" class="btn btn-success">
+                                Save Changes
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Delete Candidate Modal -->
+                    <div
+                      class="modal fade"
+                      :class="{ 'show d-block': showDeleteCandidateModal }"
+                      tabindex="-1"
+                      aria-labelledby="deleteCandidateModalLabel"
+                      aria-hidden="true"
+                      style="background-color: rgba(0, 0, 0, 0.5)"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5
+                              class="modal-title"
+                              id="deleteCandidateModalLabel"
+                            >
+                              Delete Candidate
+                            </h5>
+                          </div>
+                          <div class="modal-body">
+                            Are you sure you want to delete the candidate "<span
+                              x-text="selectedCandidate.name"
+                            ></span
+                            >"?
+                          </div>
+                          <div class="modal-footer">
+                            <button
+                              type="button"
+                              class="btn btn-secondary"
+                              @click="showDeleteCandidateModal = false; selectedCandidate = null"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-danger"
+                              @click="deleteCandidate"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+
+    <script>
+      function examGroups() {
+        return {
+          exams: [
+            {
+              id: "EXM001",
+              subject: "Mathematics",
+              group: "SS1",
+              submissions: [
+                {
+                  id: "SUB001",
+                  candidate: "James Smith",
+                  status: "Graded",
+                  score: 85,
+                },
+                {
+                  id: "SUB002",
+                  candidate: "Emily Johnson",
+                  status: "Pending",
+                  score: null,
+                },
+              ],
+              candidates: [
+                {
+                  id: "CAN001",
+                  name: "James Smith",
+                  sex: "Male",
+                  email: "james.smith@example.com",
+                },
+                {
+                  id: "CAN002",
+                  name: "Emily Johnson",
+                  sex: "Female",
+                  email: "emily.johnson@example.com",
+                },
+                {
+                  id: "CAN003",
+                  name: "Michael Brown",
+                  sex: "Male",
+                  email: "michael.brown@example.com",
+                },
+                {
+                  id: "CAN004",
+                  name: "David Wilson",
+                  sex: "Male",
+                  email: "david.wilson@example.com",
+                },
+                {
+                  id: "CAN005",
+                  name: "Christopher Moore",
+                  sex: "Male",
+                  email: "christopher.moore@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE001",
+                  question: "What is 5 + 7?",
+                  options: ["10", "11", "12", "13"],
+                  answer: "12",
+                },
+                {
+                  id: "QUE002",
+                  question: "Solve for x: 2x = 10",
+                  options: ["2", "5", "10", "20"],
+                  answer: "5",
+                },
+              ],
+              status: "Pending",
+            },
+            {
+              id: "EXM002",
+              subject: "Physics",
+              group: "SS3",
+              submissions: [
+                {
+                  id: "SUB003",
+                  candidate: "David Wilson",
+                  status: "Pending",
+                  score: null,
+                },
+                {
+                  id: "SUB004",
+                  candidate: "Christopher Moore",
+                  status: "Graded",
+                  score: 88,
+                },
+              ],
+              candidates: [
+                {
+                  id: "CAN006",
+                  name: "David Wilson",
+                  sex: "Male",
+                  email: "david.wilson@example.com",
+                },
+                {
+                  id: "CAN007",
+                  name: "Christopher Moore",
+                  sex: "Male",
+                  email: "christopher.moore@example.com",
+                },
+                {
+                  id: "CAN008",
+                  name: "Sophia Anderson",
+                  sex: "Female",
+                  email: "sophia.anderson@example.com",
+                },
+                {
+                  id: "CAN009",
+                  name: "Ethan Martinez",
+                  sex: "Male",
+                  email: "ethan.martinez@example.com",
+                },
+                {
+                  id: "CAN010",
+                  name: "Daniel Taylor",
+                  sex: "Male",
+                  email: "daniel.taylor@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE003",
+                  question: "What is the speed of light?",
+                  options: [
+                    "3.0 × 10^8 m/s",
+                    "3.0 × 10^6 m/s",
+                    "3.0 × 10^5 m/s",
+                    "3.0 × 10^7 m/s",
+                  ],
+                  answer: "3.0 × 10^8 m/s",
+                },
+                {
+                  id: "QUE004",
+                  question: "What is Newton’s second law of motion?",
+                  options: ["F = ma", "E = mc^2", "V = IR", "P = IV"],
+                  answer: "F = ma",
+                },
+              ],
+              status: "Completed",
+            },
+            {
+              id: "EXM003",
+              subject: "Chemistry",
+              group: "SS1",
+              submissions: [],
+              candidates: [
+                {
+                  id: "CAN011",
+                  name: "Anthony Davis",
+                  sex: "Male",
+                  email: "anthony.davis@example.com",
+                },
+                {
+                  id: "CAN012",
+                  name: "Peter Evans",
+                  sex: "Male",
+                  email: "peter.evans@example.com",
+                },
+                {
+                  id: "CAN013",
+                  name: "Natalie Carter",
+                  sex: "Female",
+                  email: "natalie.carter@example.com",
+                },
+                {
+                  id: "CAN014",
+                  name: "Steven Phillips",
+                  sex: "Male",
+                  email: "steven.phillips@example.com",
+                },
+                {
+                  id: "CAN015",
+                  name: "Wendy Harris",
+                  sex: "Female",
+                  email: "wendy.harris@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE005",
+                  question: "What is the chemical symbol for gold?",
+                  options: ["Ag", "Au", "Pb", "Fe"],
+                  answer: "Au",
+                },
+                {
+                  id: "QUE006",
+                  question: "What is the pH of pure water?",
+                  options: ["5", "7", "9", "11"],
+                  answer: "7",
+                },
+              ],
+              status: "Pending",
+            },
+            {
+              id: "EXM004",
+              subject: "Biology",
+              group: "SS2",
+              submissions: [
+                {
+                  id: "SUB005",
+                  candidate: "Natalie Carter",
+                  status: "Graded",
+                  score: 75,
+                },
+                {
+                  id: "SUB006",
+                  candidate: "Steven Phillips",
+                  status: "Graded",
+                  score: 81,
+                },
+              ],
+              candidates: [
+                {
+                  id: "CAN013",
+                  name: "Natalie Carter",
+                  sex: "Female",
+                  email: "natalie.carter@example.com",
+                },
+                {
+                  id: "CAN014",
+                  name: "Steven Phillips",
+                  sex: "Male",
+                  email: "steven.phillips@example.com",
+                },
+                {
+                  id: "CAN016",
+                  name: "Lucas Gray",
+                  sex: "Male",
+                  email: "lucas.gray@example.com",
+                },
+                {
+                  id: "CAN017",
+                  name: "Thomas Reed",
+                  sex: "Male",
+                  email: "thomas.reed@example.com",
+                },
+                {
+                  id: "CAN018",
+                  name: "Samuel King",
+                  sex: "Male",
+                  email: "samuel.king@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE007",
+                  question: "What is the powerhouse of the cell?",
+                  options: [
+                    "Nucleus",
+                    "Ribosome",
+                    "Mitochondrion",
+                    "Endoplasmic Reticulum",
+                  ],
+                  answer: "Mitochondrion",
+                },
+                {
+                  id: "QUE008",
+                  question: "What organ pumps blood in the human body?",
+                  options: ["Liver", "Heart", "Lungs", "Kidney"],
+                  answer: "Heart",
+                },
+              ],
+              status: "Completed",
+            },
+            {
+              id: "EXM005",
+              subject: "English Language",
+              group: "SS1",
+              submissions: [],
+              candidates: [
+                {
+                  id: "CAN019",
+                  name: "Wendy Harris",
+                  sex: "Female",
+                  email: "wendy.harris@example.com",
+                },
+                {
+                  id: "CAN020",
+                  name: "Victor Lee",
+                  sex: "Male",
+                  email: "victor.lee@example.com",
+                },
+                {
+                  id: "CAN021",
+                  name: "Benjamin Clark",
+                  sex: "Male",
+                  email: "benjamin.clark@example.com",
+                },
+                {
+                  id: "CAN022",
+                  name: "Richard Foster",
+                  sex: "Male",
+                  email: "richard.foster@example.com",
+                },
+                {
+                  id: "CAN023",
+                  name: "Brian Turner",
+                  sex: "Male",
+                  email: "brian.turner@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE009",
+                  question: "What is the synonym of 'Happy'?",
+                  options: ["Sad", "Angry", "Joyful", "Tired"],
+                  answer: "Joyful",
+                },
+                {
+                  id: "QUE010",
+                  question: "What is the past tense of 'Run'?",
+                  options: ["Run", "Running", "Ran", "Runned"],
+                  answer: "Ran",
+                },
+              ],
+              status: "Pending",
+            },
+            {
+              id: "EXM006",
+              subject: "Economics",
+              group: "SS3",
+              submissions: [
+                {
+                  id: "SUB007",
+                  candidate: "Lucas Gray",
+                  status: "Pending",
+                  score: null,
+                },
+                {
+                  id: "SUB008",
+                  candidate: "Thomas Reed",
+                  status: "Graded",
+                  score: 79,
+                },
+              ],
+              candidates: [
+                {
+                  id: "CAN016",
+                  name: "Lucas Gray",
+                  sex: "Male",
+                  email: "lucas.gray@example.com",
+                },
+                {
+                  id: "CAN017",
+                  name: "Thomas Reed",
+                  sex: "Male",
+                  email: "thomas.reed@example.com",
+                },
+                {
+                  id: "CAN024",
+                  name: "Diana Brooks",
+                  sex: "Female",
+                  email: "diana.brooks@example.com",
+                },
+                {
+                  id: "CAN011",
+                  name: "Anthony Davis",
+                  sex: "Male",
+                  email: "anthony.davis@example.com",
+                },
+                {
+                  id: "CAN012",
+                  name: "Peter Evans",
+                  sex: "Male",
+                  email: "peter.evans@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE011",
+                  question: "What is the basic economic problem?",
+                  options: [
+                    "Overproduction",
+                    "Scarcity",
+                    "Inflation",
+                    "Recession",
+                  ],
+                  answer: "Scarcity",
+                },
+                {
+                  id: "QUE012",
+                  question: "What does GDP stand for?",
+                  options: [
+                    "Gross Domestic Product",
+                    "General Domestic Price",
+                    "Gross Demand Percentage",
+                    "Global Domestic Policy",
+                  ],
+                  answer: "Gross Domestic Product",
+                },
+              ],
+              status: "Completed",
+            },
+            {
+              id: "EXM007",
+              subject: "Social Studies",
+              group: "SS2",
+              submissions: [],
+              candidates: [
+                {
+                  id: "CAN018",
+                  name: "Samuel King",
+                  sex: "Male",
+                  email: "samuel.king@example.com",
+                },
+                {
+                  id: "CAN021",
+                  name: "Benjamin Clark",
+                  sex: "Male",
+                  email: "benjamin.clark@example.com",
+                },
+                {
+                  id: "CAN025",
+                  name: "Jonathan Hill",
+                  sex: "Male",
+                  email: "jonathan.hill@example.com",
+                },
+                {
+                  id: "CAN026",
+                  name: "Susan Bell",
+                  sex: "Female",
+                  email: "susan.bell@example.com",
+                },
+                {
+                  id: "CAN022",
+                  name: "Richard Foster",
+                  sex: "Male",
+                  email: "richard.foster@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE013",
+                  question: "What is the primary unit of society?",
+                  options: ["School", "Family", "Government", "Community"],
+                  answer: "Family",
+                },
+                {
+                  id: "QUE014",
+                  question: "Which of these is a form of government?",
+                  options: ["Democracy", "Religion", "Tradition", "Economy"],
+                  answer: "Democracy",
+                },
+              ],
+              status: "Pending",
+            },
+            {
+              id: "EXM008",
+              subject: "Government",
+              group: "SS3",
+              submissions: [
+                {
+                  id: "SUB009",
+                  candidate: "Diana Brooks",
+                  status: "Graded",
+                  score: 85,
+                },
+                {
+                  id: "SUB010",
+                  candidate: "Anthony Davis",
+                  status: "Pending",
+                  score: null,
+                },
+              ],
+              candidates: [
+                {
+                  id: "CAN024",
+                  name: "Diana Brooks",
+                  sex: "Female",
+                  email: "diana.brooks@example.com",
+                },
+                {
+                  id: "CAN011",
+                  name: "Anthony Davis",
+                  sex: "Male",
+                  email: "anthony.davis@example.com",
+                },
+                {
+                  id: "CAN012",
+                  name: "Peter Evans",
+                  sex: "Male",
+                  email: "peter.evans@example.com",
+                },
+                {
+                  id: "CAN016",
+                  name: "Lucas Gray",
+                  sex: "Male",
+                  email: "lucas.gray@example.com",
+                },
+                {
+                  id: "CAN017",
+                  name: "Thomas Reed",
+                  sex: "Male",
+                  email: "thomas.reed@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE015",
+                  question: "What is the primary duty of the government?",
+                  options: ["Education", "Security", "Trade", "Taxation"],
+                  answer: "Security",
+                },
+                {
+                  id: "QUE016",
+                  question:
+                    "Who is the head of state in a parliamentary system?",
+                  options: [
+                    "President",
+                    "Prime Minister",
+                    "Governor",
+                    "Chancellor",
+                  ],
+                  answer: "Prime Minister",
+                },
+              ],
+              status: "Completed",
+            },
+            {
+              id: "EXM009",
+              subject: "Geography",
+              group: "SS2",
+              submissions: [],
+              candidates: [
+                {
+                  id: "CAN019",
+                  name: "Wendy Harris",
+                  sex: "Female",
+                  email: "wendy.harris@example.com",
+                },
+                {
+                  id: "CAN020",
+                  name: "Victor Lee",
+                  sex: "Male",
+                  email: "victor.lee@example.com",
+                },
+                {
+                  id: "CAN021",
+                  name: "Benjamin Clark",
+                  sex: "Male",
+                  email: "benjamin.clark@example.com",
+                },
+                {
+                  id: "CAN023",
+                  name: "Brian Turner",
+                  sex: "Male",
+                  email: "brian.turner@example.com",
+                },
+                {
+                  id: "CAN022",
+                  name: "Richard Foster",
+                  sex: "Male",
+                  email: "richard.foster@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE017",
+                  question: "Which is the longest river in the world?",
+                  options: ["Amazon", "Nile", "Mississippi", "Yangtze"],
+                  answer: "Nile",
+                },
+                {
+                  id: "QUE018",
+                  question: "Which planet is known as the Red Planet?",
+                  options: ["Earth", "Mars", "Venus", "Jupiter"],
+                  answer: "Mars",
+                },
+              ],
+              status: "Pending",
+            },
+            {
+              id: "EXM010",
+              subject: "Literature",
+              group: "SS1",
+              submissions: [
+                {
+                  id: "SUB011",
+                  candidate: "Brian Turner",
+                  status: "Graded",
+                  score: 76,
+                },
+                {
+                  id: "SUB012",
+                  candidate: "Charles Adams",
+                  status: "Graded",
+                  score: 84,
+                },
+              ],
+              candidates: [
+                {
+                  id: "CAN023",
+                  name: "Brian Turner",
+                  sex: "Male",
+                  email: "brian.turner@example.com",
+                },
+                {
+                  id: "CAN027",
+                  name: "Charles Adams",
+                  sex: "Male",
+                  email: "charles.adams@example.com",
+                },
+                {
+                  id: "CAN024",
+                  name: "Diana Brooks",
+                  sex: "Female",
+                  email: "diana.brooks@example.com",
+                },
+                {
+                  id: "CAN014",
+                  name: "Steven Phillips",
+                  sex: "Male",
+                  email: "steven.phillips@example.com",
+                },
+                {
+                  id: "CAN017",
+                  name: "Thomas Reed",
+                  sex: "Male",
+                  email: "thomas.reed@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE019",
+                  question: "Who wrote 'Things Fall Apart'?",
+                  options: [
+                    "Chinua Achebe",
+                    "Wole Soyinka",
+                    "Ngugi wa Thiong'o",
+                    "J.K. Rowling",
+                  ],
+                  answer: "Chinua Achebe",
+                },
+                {
+                  id: "QUE020",
+                  question: "What is the theme of 'Romeo and Juliet'?",
+                  options: ["Hate", "War", "Love", "Politics"],
+                  answer: "Love",
+                },
+              ],
+              status: "Completed",
+            },
+            {
+              id: "EXM011",
+              subject: "Computer Science",
+              group: "SS3",
+              submissions: [
+                {
+                  id: "SUB013",
+                  candidate: "Anthony Davis",
+                  status: "Graded",
+                  score: 95,
+                },
+                {
+                  id: "SUB014",
+                  candidate: "Peter Evans",
+                  status: "Pending",
+                  score: null,
+                },
+              ],
+              candidates: [
+                {
+                  id: "CAN011",
+                  name: "Anthony Davis",
+                  sex: "Male",
+                  email: "anthony.davis@example.com",
+                },
+                {
+                  id: "CAN012",
+                  name: "Peter Evans",
+                  sex: "Male",
+                  email: "peter.evans@example.com",
+                },
+                {
+                  id: "CAN022",
+                  name: "Richard Foster",
+                  sex: "Male",
+                  email: "richard.foster@example.com",
+                },
+                {
+                  id: "CAN026",
+                  name: "Susan Bell",
+                  sex: "Female",
+                  email: "susan.bell@example.com",
+                },
+                {
+                  id: "CAN025",
+                  name: "Jonathan Hill",
+                  sex: "Male",
+                  email: "jonathan.hill@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE021",
+                  question: "What does CPU stand for?",
+                  options: [
+                    "Central Processing Unit",
+                    "Central Programming Unit",
+                    "Computer Processing Unit",
+                    "Core Processing Unit",
+                  ],
+                  answer: "Central Processing Unit",
+                },
+                {
+                  id: "QUE022",
+                  question:
+                    "Which language is primarily used for web development?",
+                  options: ["Java", "Python", "JavaScript", "C++"],
+                  answer: "JavaScript",
+                },
+              ],
+              status: "Completed",
+            },
+            {
+              id: "EXM012",
+              subject: "History",
+              group: "SS2",
+              submissions: [],
+              candidates: [
+                {
+                  id: "CAN013",
+                  name: "Natalie Carter",
+                  sex: "Female",
+                  email: "natalie.carter@example.com",
+                },
+                {
+                  id: "CAN014",
+                  name: "Steven Phillips",
+                  sex: "Male",
+                  email: "steven.phillips@example.com",
+                },
+                {
+                  id: "CAN016",
+                  name: "Lucas Gray",
+                  sex: "Male",
+                  email: "lucas.gray@example.com",
+                },
+                {
+                  id: "CAN018",
+                  name: "Samuel King",
+                  sex: "Male",
+                  email: "samuel.king@example.com",
+                },
+                {
+                  id: "CAN017",
+                  name: "Thomas Reed",
+                  sex: "Male",
+                  email: "thomas.reed@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE023",
+                  question: "Who was the first president of the United States?",
+                  options: [
+                    "George Washington",
+                    "Abraham Lincoln",
+                    "Thomas Jefferson",
+                    "John Adams",
+                  ],
+                  answer: "George Washington",
+                },
+                {
+                  id: "QUE024",
+                  question: "Which war ended in 1945?",
+                  options: [
+                    "World War I",
+                    "World War II",
+                    "Cold War",
+                    "Civil War",
+                  ],
+                  answer: "World War II",
+                },
+              ],
+              status: "Pending",
+            },
+            {
+              id: "EXM013",
+              subject: "Civic Education",
+              group: "SS1",
+              submissions: [
+                {
+                  id: "SUB015",
+                  candidate: "Richard Foster",
+                  status: "Pending",
+                  score: null,
+                },
+                {
+                  id: "SUB016",
+                  candidate: "Susan Bell",
+                  status: "Graded",
+                  score: 90,
+                },
+              ],
+              candidates: [
+                {
+                  id: "CAN022",
+                  name: "Richard Foster",
+                  sex: "Male",
+                  email: "richard.foster@example.com",
+                },
+                {
+                  id: "CAN026",
+                  name: "Susan Bell",
+                  sex: "Female",
+                  email: "susan.bell@example.com",
+                },
+                {
+                  id: "CAN025",
+                  name: "Jonathan Hill",
+                  sex: "Male",
+                  email: "jonathan.hill@example.com",
+                },
+                {
+                  id: "CAN023",
+                  name: "Brian Turner",
+                  sex: "Male",
+                  email: "brian.turner@example.com",
+                },
+                {
+                  id: "CAN027",
+                  name: "Charles Adams",
+                  sex: "Male",
+                  email: "charles.adams@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE025",
+                  question: "What is democracy?",
+                  options: [
+                    "Rule by a king",
+                    "Rule by the people",
+                    "Rule by the rich",
+                    "Rule by the military",
+                  ],
+                  answer: "Rule by the people",
+                },
+                {
+                  id: "QUE026",
+                  question: "What is the full meaning of INEC?",
+                  options: [
+                    "Independent National Electoral Commission",
+                    "International National Electoral Commission",
+                    "Intercontinental National Electoral Committee",
+                    "Internal Nigerian Electoral Council",
+                  ],
+                  answer: "Independent National Electoral Commission",
+                },
+              ],
+              status: "Completed",
+            },
+            {
+              id: "EXM014",
+              subject: "Further Mathematics",
+              group: "SS3",
+              submissions: [],
+              candidates: [
+                {
+                  id: "CAN016",
+                  name: "Lucas Gray",
+                  sex: "Male",
+                  email: "lucas.gray@example.com",
+                },
+                {
+                  id: "CAN017",
+                  name: "Thomas Reed",
+                  sex: "Male",
+                  email: "thomas.reed@example.com",
+                },
+                {
+                  id: "CAN024",
+                  name: "Diana Brooks",
+                  sex: "Female",
+                  email: "diana.brooks@example.com",
+                },
+                {
+                  id: "CAN011",
+                  name: "Anthony Davis",
+                  sex: "Male",
+                  email: "anthony.davis@example.com",
+                },
+                {
+                  id: "CAN012",
+                  name: "Peter Evans",
+                  sex: "Male",
+                  email: "peter.evans@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE027",
+                  question: "What is the derivative of x²?",
+                  options: ["x", "2x", "x²", "x³"],
+                  answer: "2x",
+                },
+                {
+                  id: "QUE028",
+                  question: "Evaluate the integral of 2x dx",
+                  options: ["x² + C", "2x + C", "x³ + C", "2x² + C"],
+                  answer: "x² + C",
+                },
+              ],
+              status: "Pending",
+            },
+            {
+              id: "EXM015",
+              subject: "French",
+              group: "SS2",
+              submissions: [
+                {
+                  id: "SUB017",
+                  candidate: "Samuel King",
+                  status: "Graded",
+                  score: 80,
+                },
+                {
+                  id: "SUB018",
+                  candidate: "Benjamin Clark",
+                  status: "Graded",
+                  score: 82,
+                },
+              ],
+              candidates: [
+                {
+                  id: "CAN018",
+                  name: "Samuel King",
+                  sex: "Male",
+                  email: "samuel.king@example.com",
+                },
+                {
+                  id: "CAN021",
+                  name: "Benjamin Clark",
+                  sex: "Male",
+                  email: "benjamin.clark@example.com",
+                },
+                {
+                  id: "CAN025",
+                  name: "Jonathan Hill",
+                  sex: "Male",
+                  email: "jonathan.hill@example.com",
+                },
+                {
+                  id: "CAN026",
+                  name: "Susan Bell",
+                  sex: "Female",
+                  email: "susan.bell@example.com",
+                },
+                {
+                  id: "CAN022",
+                  name: "Richard Foster",
+                  sex: "Male",
+                  email: "richard.foster@example.com",
+                },
+              ],
+              questions: [
+                {
+                  id: "QUE029",
+                  question: "What is the French word for 'Hello'?",
+                  options: ["Bonjour", "Merci", "Pardon", "Bonsoir"],
+                  answer: "Bonjour",
+                },
+                {
+                  id: "QUE030",
+                  question: "Translate 'I love you' to French",
+                  options: ["Je suis", "Tu es", "Je t'aime", "Nous sommes"],
+                  answer: "Je t'aime",
+                },
+              ],
+              status: "Completed",
+            },
+          ],
+
+          filters: { group: "SS1", exam: "Mathematics" },
+          currentPage: 1,
+          itemsPerPage: 10,
+          newQuestion: {
+            question: "",
+            options: ["", "", "", ""],
+          },
+          newCandidate: {
+            name: "",
+            email: "",
+            sex: "",
+          },
+          tempSubmission: {},
+          tempQuestion: {},
+          tempCandidate: {},
+          selectedSubmission: null,
+          selectedQuestion: null,
+          selectedCandidate: null,
+          showGradeSubmissionModal: false,
+          showDeleteSubmissionModal: false,
+          showAddQuestionModal: false,
+          showEditQuestionModal: false,
+          showDeleteQuestionModal: false,
+          showAddCandidateModal: false,
+          showBulkCandidateUploadModal: false,
+          showEditCandidateModal: false,
+          showDeleteCandidateModal: false,
+
+          openGradeSubmissionModal(submission) {
+            this.selectedSubmission = submission;
+            this.tempSubmission = JSON.parse(JSON.stringify(submission));
+            this.showGradeSubmissionModal = true;
+          },
+
+          // Update the original submission with the tempSubmission values
+          updateSubmission() {
+            Object.assign(this.selectedSubmission, this.tempSubmission);
+            this.showGradeSubmissionModal = false;
+            this.selectedSubmission = null;
+          },
+
+          // Reset the tempSubmission to match the original selectedSubmission
+          resetSubmission() {
+            this.tempSubmission = {};
+            this.selectedSubmission = null;
+          },
+
+          deleteSubmission() {
+            if (this.selectedExam) {
+              this.selectedExam.submissions =
+                this.selectedExam.submissions.filter(
+                  (submission) => submission.id !== this.selectedSubmission.id
+                );
+            }
+
+            this.selectedSubmission = null;
+            this.showDeleteSubmissionModal = false;
+          },
+
+          addQuestion(event) {
+            if (this.selectedExam) {
+              this.selectedExam.questions.push({
+                ...this.newQuestion,
+                id: Date.now().toString(), // Generate unique ID
+              });
+            }
+
+            // Reset form and close modal
+            this.newQuestion = { question: "", options: ["", "", "", ""] };
+            event.target.reset();
+            this.showAddQuestionModal = false;
+          },
+
+          openEditQuestionModal(question) {
+            this.selectedQuestion = question;
+            this.tempQuestion = JSON.parse(JSON.stringify(question));
+            this.showEditQuestionModal = true;
+          },
+
+          // Update the original question with the tempQuestion values
+          updateQuestion() {
+            Object.assign(this.selectedQuestion, this.tempQuestion);
+            this.showEditQuestionModal = false;
+            this.selectedQuestion = null;
+          },
+
+          // Reset the tempQuestion to match the original selectedQuestion
+          resetQuestion() {
+            this.tempQuestion = {};
+            this.selectedQuestion = null;
+          },
+
+          deleteQuestion() {
+            if (this.selectedExam) {
+              this.selectedExam.questions = this.selectedExam.questions.filter(
+                (question) => question.id !== this.selectedQuestion.id
+              );
+            }
+
+            this.selectedQuestion = null;
+            this.showDeleteQuestionModal = false;
+          },
+
+          addCandidate(event) {
+            if (this.selectedExam) {
+              this.selectedExam.candidates.push({
+                ...this.newCandidate,
+                id: Date.now().toString(), // Generate unique ID
+              });
+            }
+
+            // Reset form and close modal
+            this.newCandidate = { name: "", email: "", sex: "" };
+            event.target.reset();
+            this.showAddCandidateModal = false;
+          },
+
+          bulkUploadCandidates(event) {
+            const file = event.target.file.files[0];
+
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+              const csvContent = e.target.result;
+              const rows = csvContent
+                .split("\n")
+                .map((row) => row.trim())
+                .filter((row) => row);
+
+              // Remove header row
+              rows.shift();
+
+              let newCandidates = [];
+
+              rows.forEach((row) => {
+                const columns = row.split(",").map((col) => col.trim());
+
+                if (columns.length === 4) {
+                  const [firstName, lastName, email, sex] = columns;
+                  newCandidates.push({
+                    id: Date.now() + Math.random(),
+                    name: `${firstName} ${lastName}`,
+                    email,
+                    sex,
+                  });
+                }
+              });
+
+              // Add candidates to the selected exam
+              if (this.selectedExam) {
+                this.selectedExam.candidates.push(...newCandidates);
+              }
+
+              // Reset form and close modal
+              this.showBulkCandidateUploadModal = false;
+              event.target.reset();
+            };
+
+            reader.readAsText(file);
+          },
+
+          openEditCandidateModal(candidate) {
+            this.selectedCandidate = candidate;
+            this.tempCandidate = JSON.parse(JSON.stringify(candidate));
+            this.showEditCandidateModal = true;
+          },
+
+          // Update the original candidate with the tempCandidate values
+          updateCandidate() {
+            Object.assign(this.selectedCandidate, this.tempCandidate);
+            this.showEditCandidateModal = false;
+            this.selectedCandidate = null;
+          },
+
+          // Reset the tempCandidate to match the original selectedCandidate
+          resetCandidate() {
+            this.tempCandidate = {};
+            this.selectedCandidate = null;
+          },
+
+          deleteCandidate() {
+            if (this.selectedExam) {
+              this.selectedExam.candidates =
+                this.selectedExam.candidates.filter(
+                  (candidate) => candidate.id !== this.selectedCandidate.id
+                );
+            }
+
+            this.selectedCandidate = null;
+            this.showDeleteCandidateModal = false;
+          },
+
+          get selectedExam() {
+            return this.exams.find(
+              (exam) =>
+                exam.group === this.filters.group &&
+                exam.subject === this.filters.exam
+            );
+          },
+
+          paginatedItems(items) {
+            if (!this.selectedExam) return [];
+
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = this.currentPage * this.itemsPerPage;
+            return items.slice(start, end);
+          },
+
+          totalPages(items) {
+            return Math.ceil(items.length / this.itemsPerPage);
+          },
+
+          goToPage(page, items) {
+            if (page > 0 && page <= this.totalPages(items)) {
+              this.currentPage = page;
+            }
+          },
+
+          get firstItem() {
+            return (this.currentPage - 1) * this.itemsPerPage + 1;
+          },
+
+          lastItem(items) {
+            const end = this.currentPage * this.itemsPerPage;
+            return end > items.length ? items.length : end;
+          },
+        };
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
+    <title>Prodigy - Manage Exams</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link href="assets/css/app.css" rel="stylesheet" />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <nav id="sidebar" class="sidebar js-sidebar">
+        <div class="sidebar-content js-simplebar">
+          <a class="sidebar-brand mb-3" href="#">
+            <i class="bi bi-mortarboard align-middle"></i>
+            <span class="align-middle ms-1 fs-4">Prodigy CBT</span>
+          </a>
+
+          <ul class="sidebar-nav">
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="adminDashboard.html">
+                <i class="bi bi-speedometer2 align-middle"></i>
+                <span class="align-middle">Dashboard</span>
+              </a>
+            </li>
+
+            <li class="sidebar-item active">
+              <a
+                data-bs-target="#exams"
+                data-bs-toggle="collapse"
+                class="sidebar-link collapsed"
+                aria-expanded="false"
+              >
+                <i class="bi bi-clipboard-check align-middle"></i>
+                <span class="align-middle">Exams</span>
+              </a>
+              <ul
+                id="exams"
+                class="sidebar-dropdown list-unstyled collapse"
+                data-bs-parent="#sidebar"
+              >
+                <li class="sidebar-item active">
+                  <a class="sidebar-link" href="manageExams.html"
+                    >Manage Exams</a
+                  >
+                </li>
+                <li class="sidebar-item">
+                  <a class="sidebar-link" href="examGroups.html">Exam Groups</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="manageUsers.html">
+                <i class="bi bi-people align-middle"></i>
+                <span class="align-middle">Users</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="main">
+        <nav class="navbar navbar-expand navbar-light navbar-bg">
+          <a class="sidebar-toggle js-sidebar-toggle">
+            <i class="hamburger align-self-center"></i>
+          </a>
+
+          <div class="navbar-collapse collapse">
+            <ul class="navbar-nav navbar-align">
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-icon dropdown-toggle d-inline-block d-sm-none"
+                  href="#"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="align-middle" data-feather="settings"></i>
+                </a>
+
+                <a
+                  class="nav-link dropdown-toggle d-none d-sm-inline-block"
+                  href="#"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="align-middle" data-feather="user"></i>
+                  <span class="text-dark align-middle">John Doe</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end">
+                  <a class="dropdown-item" href="signIn.html"
+                    ><i class="align-middle me-1" data-feather="log-out"></i>
+                    Log out</a
+                  >
+                </div>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+        <main class="content" x-data="examManager()">
+          <div class="container-fluid p-0">
+            <h1 class="mb-4 text-secondary">Manage Exams</h1>
+
+            <button
+              class="btn btn-primary mb-3"
+              @click="showAddExamModal = true"
+            >
+              Add Exam
+            </button>
+
+            <!-- Exam Table -->
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title">Exams</h5>
+              </div>
+
+              <div class="card-body">
+                <div>
+                  <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">Title</th>
+                          <th scope="col">Group</th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Actions</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <template
+                          x-for="(exam, index) in paginatedExams()"
+                          :key="exam.id"
+                        >
+                          <tr>
+                            <td x-text="exam.title"></td>
+                            <td x-text="exam.group"></td>
+                            <td>
+                              <span
+                                :class="{
+                                  'badge bg-success': exam.status === 'Completed',
+                                  'badge bg-info': exam.status === 'In Progress',
+                                  'badge bg-warning': exam.status === 'Pending'
+                                }"
+                                x-text="exam.status"
+                              ></span>
+                            </td>
+                            <td>
+                              <span class="d-flex gap-2">
+                                <button
+                                  class="btn btn-sm btn-info"
+                                  @click="showViewExamModal = true; selectedExam = exam"
+                                >
+                                  <i class="bi bi-eye"></i>
+                                </button>
+                                <button
+                                  class="btn btn-warning btn-sm text-dark"
+                                  @click="openEditModal(exam)"
+                                >
+                                  <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button
+                                  class="btn btn-sm btn-danger"
+                                  @click="showDeleteExamModal = true; selectedExam = exam"
+                                >
+                                  <i class="bi bi-trash"></i></button
+                              ></span>
+                            </td>
+                          </tr>
+                        </template>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div
+                    class="d-flex flex-column flex-md-row justify-content-between mt-4"
+                  >
+                    <p x-show="exams.length &lt; 1">No entries found</p>
+                    <p x-show="exams.length > 0">
+                      Showing
+                      <span x-text="firstItem"></span>
+                      - <span x-text="lastItem"></span> of
+                      <span x-text="exams.length"></span> entries
+                    </p>
+                    <nav
+                      aria-label="Page navigation"
+                      x-show="exams.length > 10"
+                    >
+                      <ul
+                        class="pagination pagination-sm justify-content-center"
+                      >
+                        <li class="page-item">
+                          <button
+                            @click="goToPage(currentPage - 1)"
+                            :disabled="currentPage === 1"
+                            class="page-link"
+                          >
+                            <span aria-hidden="true">&laquo;</span>
+                          </button>
+                        </li>
+
+                        <template x-for="page in totalPages" :key="page">
+                          <li
+                            class="page-item"
+                            :class="{'active': currentPage === page}"
+                          >
+                            <button
+                              @click="goToPage(page)"
+                              class="page-link"
+                              x-text="page"
+                            ></button>
+                          </li>
+                        </template>
+
+                        <li class="page-item">
+                          <button
+                            @click="goToPage(currentPage + 1)"
+                            :disabled="currentPage === totalPages"
+                            class="page-link"
+                          >
+                            <span aria-hidden="true">&raquo;</span>
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add Exam Modal -->
+            <div
+              class="modal fade"
+              :class="{ 'show d-block': showAddExamModal}"
+              tabindex="-1"
+              aria-labelledby="addExamModalLabel"
+              aria-hidden="true"
+              style="background-color: rgba(0, 0, 0, 0.5)"
+            >
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="addExamModalLabel">Add Exam</h5>
+                  </div>
+                  <div class="modal-body">
+                    <form @submit.prevent="addExam($event)">
+                      <div class="mb-3">
+                        <label for="examTitle" class="form-label">Title</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="examTitle"
+                          x-model="newExam.title"
+                          required
+                        />
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="examDescription" class="form-label"
+                          >Description</label
+                        >
+                        <textarea
+                          class="form-control"
+                          id="examDescription"
+                          x-model="newExam.description"
+                          required
+                          style="resize: none"
+                        ></textarea>
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="examGroup" class="form-label">Group</label>
+                        <select
+                          class="form-select"
+                          id="examGroup"
+                          x-model="newExam.group"
+                          required
+                        >
+                          <option value="">Select Group</option>
+                          <option value="JSS1">JSS1</option>
+                          <option value="JSS2">JSS2</option>
+                          <option value="JSS3">JSS3</option>
+                          <option value="SS1">SS1</option>
+                          <option value="SS2">SS2</option>
+                          <option value="SS3">SS3</option>
+                        </select>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Shuffle:</label>
+                        <div class="d-flex gap-3 align-items-center">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="shuffleQuestions"
+                              x-model="newExam.shuffleOptions.questions"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="shuffleQuestions"
+                            >
+                              Questions
+                            </label>
+                          </div>
+
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="shuffleOptions"
+                              x-model="newExam.shuffleOptions.options"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="shuffleOptions"
+                            >
+                              Options
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="modal-footer">
+                        <button
+                          type="reset"
+                          class="btn btn-secondary"
+                          @click="showAddExamModal = false"
+                        >
+                          Cancel
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                          Save Exam
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- View Exam Modal -->
+            <div
+              class="modal fade"
+              :class="{ 'show d-block': showViewExamModal}"
+              tabindex="-1"
+              aria-labelledby="viewExamModalLabel"
+              aria-hidden="true"
+              style="background-color: rgba(0, 0, 0, 0.5)"
+            >
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="viewExamModalLabel">
+                      Exam Details
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                      @click="showViewExamModal = false; selectedExam = null"
+                    ></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>
+                      <strong>Title:</strong>
+                      <span x-text="selectedExam.title"></span>
+                    </p>
+                    <p>
+                      <strong>Description:</strong>
+                      <span x-text="selectedExam.description"></span>
+                    </p>
+                    <p>
+                      <strong>Group:</strong>
+                      <span x-text="selectedExam.group"></span>
+                    </p>
+                    <p>
+                      <strong>Status:</strong>
+                      <span x-text="selectedExam.status"></span>
+                    </p>
+                    <p>
+                      <strong>Shuffle Questions:</strong>
+                      <span
+                        x-text="selectedExam.shuffleOptions.questions ? 'Yes' : 'No'"
+                      ></span>
+                    </p>
+                    <p>
+                      <strong>Shuffle Options:</strong>
+                      <span
+                        x-text="selectedExam.shuffleOptions.options ? 'Yes' : 'No'"
+                      ></span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Exam Modal -->
+            <div
+              class="modal fade"
+              :class="{ 'show d-block': showEditExamModal }"
+              tabindex="-1"
+              aria-labelledby="editExamModalLabel"
+              aria-hidden="true"
+              style="background-color: rgba(0, 0, 0, 0.5)"
+            >
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="editExamModalLabel">
+                      Edit Exam Details
+                    </h5>
+                  </div>
+
+                  <form @submit.prevent="updateExam()">
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label for="examTitle" class="form-label">Title</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="examTitle"
+                          x-model="tempExam.title"
+                          required
+                        />
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="examDescription" class="form-label"
+                          >Description</label
+                        >
+                        <textarea
+                          class="form-control"
+                          id="examDescription"
+                          x-model="tempExam.description"
+                          required
+                          style="resize: none"
+                        ></textarea>
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="examGroup" class="form-label">Group</label>
+                        <select
+                          class="form-select"
+                          id="examGroup"
+                          x-model="tempExam.group"
+                          required
+                        >
+                          <option value="">Select Group</option>
+                          <option value="JSS1">JSS1</option>
+                          <option value="JSS2">JSS2</option>
+                          <option value="JSS3">JSS3</option>
+                          <option value="SS1">SS1</option>
+                          <option value="SS2">SS2</option>
+                          <option value="SS3">SS3</option>
+                        </select>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Shuffle:</label>
+                        <div class="d-flex gap-3 align-items-center">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="shuffleQuestions"
+                              x-model="tempExam.shuffleOptions.questions"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="shuffleQuestions"
+                            >
+                              Questions
+                            </label>
+                          </div>
+
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="shuffleOptions"
+                              x-model="tempExam.shuffleOptions.options"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="shuffleOptions"
+                            >
+                              Options
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        @click="resetExam(); showEditExamModal = false"
+                      >
+                        Cancel
+                      </button>
+                      <button type="submit" class="btn btn-success">
+                        Save Changes
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delete Exam Modal -->
+            <div
+              class="modal fade"
+              :class="{ 'show d-block': showDeleteExamModal }"
+              tabindex="-1"
+              aria-labelledby="deleteExamModalLabel"
+              aria-hidden="true"
+              style="background-color: rgba(0, 0, 0, 0.5)"
+            >
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="deleteExamModalLabel">
+                      Delete Exam
+                    </h5>
+                  </div>
+                  <div class="modal-body">
+                    Are you sure you want to delete the exam "<span
+                      x-text="selectedExam.title"
+                    ></span
+                    >"?
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      @click="showDeleteExamModal = false; selectedExam = null"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-danger"
+                      @click="deleteExam"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+
+    <script>
+      function examManager() {
+        return {
+          exams: [
+            {
+              id: 1,
+              title: "Mathematics Test",
+              description: "Algebra and Geometry",
+              group: "SS1",
+              status: "In Progress",
+              shuffleOptions: { questions: true, options: false },
+            },
+            {
+              id: 2,
+              title: "Physics Quiz",
+              description: "Mechanics and Thermodynamics",
+              group: "SS3",
+              status: "Pending",
+              shuffleOptions: { questions: false, options: true },
+            },
+            {
+              id: 3,
+              title: "Chemistry Exam",
+              description: "Organic and Inorganic Chemistry",
+              group: "SS1",
+              status: "Completed",
+              shuffleOptions: { questions: true, options: true },
+            },
+            {
+              id: 4,
+              title: "Biology Assessment",
+              description: "Human Anatomy",
+              group: "SS2",
+              status: "In Progress",
+              shuffleOptions: { questions: false, options: false },
+            },
+            {
+              id: 5,
+              title: "English Test",
+              description: "Grammar and Composition",
+              group: "SS1",
+              status: "Pending",
+              shuffleOptions: { questions: true, options: true },
+            },
+            {
+              id: 6,
+              title: "History Exam",
+              description: "World War II",
+              group: "SS3",
+              status: "Completed",
+              shuffleOptions: { questions: false, options: false },
+            },
+            {
+              id: 7,
+              title: "Geography Quiz",
+              description: "Earth and Environment",
+              group: "SS2",
+              status: "In Progress",
+              shuffleOptions: { questions: true, options: false },
+            },
+            {
+              id: 8,
+              title: "Computer Science Test",
+              description: "Algorithms and Data Structures",
+              group: "SS1",
+              status: "Pending",
+              shuffleOptions: { questions: true, options: true },
+            },
+            {
+              id: 9,
+              title: "Economics Exam",
+              description: "Micro and Macro Economics",
+              group: "SS3",
+              status: "Completed",
+              shuffleOptions: { questions: false, options: true },
+            },
+            {
+              id: 10,
+              title: "Government Test",
+              description: "Political Systems",
+              group: "SS2",
+              status: "In Progress",
+              shuffleOptions: { questions: true, options: true },
+            },
+            {
+              id: 11,
+              title: "Accounting Quiz",
+              description: "Financial Accounting",
+              group: "SS1",
+              status: "Pending",
+              shuffleOptions: { questions: false, options: false },
+            },
+            {
+              id: 12,
+              title: "Marketing Exam",
+              description: "Market Research",
+              group: "SS3",
+              status: "Completed",
+              shuffleOptions: { questions: true, options: false },
+            },
+            {
+              id: 13,
+              title: "Physics Practical",
+              description: "Electricity and Magnetism",
+              group: "SS2",
+              status: "In Progress",
+              shuffleOptions: { questions: true, options: true },
+            },
+            {
+              id: 14,
+              title: "Literature Test",
+              description: "Shakespearean Works",
+              group: "SS3",
+              status: "Pending",
+              shuffleOptions: { questions: false, options: false },
+            },
+            {
+              id: 15,
+              title: "General Knowledge Quiz",
+              description: "Current Affairs",
+              group: "SS1",
+              status: "Completed",
+              shuffleOptions: { questions: true, options: true },
+            },
+          ],
+
+          currentPage: 1,
+          itemsPerPage: 10,
+          selectedExam: null,
+          tempExam: {},
+          showAddExamModal: false,
+          showViewExamModal: false,
+          showEditExamModal: false,
+          showDeleteExamModal: false,
+          newExam: {
+            title: "",
+            description: "",
+            groups: "",
+            shuffleOptions: {},
+          },
+
+          addExam(event) {
+            this.exams.push({
+              ...this.newExam,
+              id: this.exams.length + 1,
+              status: "Pending",
+            });
+
+            event.target.reset();
+            this.showAddExamModal = false;
+          },
+
+          openEditModal(exam) {
+            this.selectedExam = exam;
+            this.tempExam = JSON.parse(JSON.stringify(exam));
+            this.showEditExamModal = true;
+          },
+
+          // Update the original exam with the tempExam values
+          updateExam() {
+            Object.assign(this.selectedExam, this.tempExam);
+            this.showEditExamModal = false;
+            this.selectedExam = null;
+          },
+
+          // Reset the tempExam to match the original selectedExam
+          resetExam() {
+            this.tempExam = {};
+            this.selectedExam = null;
+          },
+
+          deleteExam() {
+            this.exams = this.exams.filter(
+              (exam) => exam.id !== this.selectedExam.id
+            );
+            this.selectedExam = null;
+            this.showDeleteExamModal = false;
+          },
+
+          paginatedExams() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = this.currentPage * this.itemsPerPage;
+            return this.exams.slice(start, end);
+          },
+
+          get totalPages() {
+            return Math.ceil(this.exams.length / this.itemsPerPage);
+          },
+
+          goToPage(page) {
+            if (page > 0 && page <= this.totalPages) {
+              this.currentPage = page;
+            }
+          },
+
+          get firstItem() {
+            return (this.currentPage - 1) * this.itemsPerPage + 1;
+          },
+
+          get lastItem() {
+            const end = this.currentPage * this.itemsPerPage;
+            return end > this.exams.length ? this.exams.length : end;
+          },
+        };
+      }
+    </script>
+  </body>
+</html>
