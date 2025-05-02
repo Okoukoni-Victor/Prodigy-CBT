@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html
+  lang="en"
+  x-data="{ theme: localStorage.getItem('theme') || 'light' }"
+  x-init="$watch('theme', value => localStorage.setItem('theme', value))"
+  style="transition: all 0.4s ease"
+>
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -42,7 +47,7 @@
       }
     </style>
   </head>
-  <body>
+  <body x-data="recentExams()">
     <div class="wrapper">
       <nav id="sidebar" class="sidebar js-sidebar">
         <div class="sidebar-content js-simplebar">
@@ -69,8 +74,11 @@
         </div>
       </nav>
 
-      <div class="main">
-        <nav class="navbar navbar-expand navbar-light navbar-bg">
+      <div class="main" :class="{ 'bg-dark bg-opacity-50': theme === 'dark' }">
+        <nav
+          class="navbar navbar-expand navbar-light navbar-bg"
+          :class="{ 'bg-dark': theme === 'dark' }"
+        >
           <a class="sidebar-toggle js-sidebar-toggle">
             <i class="hamburger align-self-center"></i>
           </a>
@@ -86,13 +94,39 @@
                   <i class="align-middle" data-feather="settings"></i>
                 </a>
 
+                <!-- Dark Mode Toggle Switch -->
+                <button
+                  type="button"
+                  @click="toggleTheme()"
+                  class="btn btn-sm d-inline-flex gap-2 align-items-center bg-white border border-light rounded-pill"
+                >
+                  <span
+                    class="p-1 d-inline-flex align-items-center justify-content-center rounded-circle small"
+                    :class="theme === 'light' ? 'bg-dark text-white' : 'bg-transparent text-secondary'"
+                    style="width: 20px; height: 20px; transition: all 0.3s ease"
+                    aria-label="Switch to light mode"
+                  >
+                    <i class="bi bi-brightness-high"></i>
+                  </span>
+
+                  <span
+                    class="p-1 d-inline-flex align-items-center justify-content-center rounded-circle small"
+                    :class="theme === 'dark' ? 'bg-dark text-white' : 'bg-transparent text-secondary'"
+                    style="width: 20px; height: 20px; transition: all 0.3s ease"
+                    aria-label="Switch to dark mode"
+                  >
+                    <i class="bi bi-moon"></i>
+                  </span>
+                </button>
+
                 <a
                   class="nav-link dropdown-toggle d-none d-sm-inline-block"
+                  :class="{ 'text-white': theme === 'dark', 'text-dark': theme !== 'dark' }"
                   href="#"
                   data-bs-toggle="dropdown"
                 >
                   <i class="align-middle" data-feather="user"></i>
-                  <span class="text-dark align-middle">John Doe</span>
+                  <span class="align-middle">John Doe</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end">
                   <a class="dropdown-item" href="signIn.html"
@@ -105,7 +139,7 @@
           </div>
         </nav>
 
-        <main class="content" x-data="recentExams()">
+        <main class="content">
           <div class="container-fluid p-0">
             <div class="col-12">
               <div class="card">
@@ -113,10 +147,13 @@
                   <h5 class="card-title text-white mb-0">Recent Exams</h5>
                 </div>
 
-                <div class="card-body">
+                <div class="card-body" :class="{ 'bg-dark': theme === 'dark'}">
                   <div>
                     <div class="table-responsive">
-                      <table class="table table-striped table-hover">
+                      <table
+                        class="table table-striped table-hover"
+                        :class="{ 'table-dark': theme === 'dark'}"
+                      >
                         <thead>
                           <tr>
                             <th scope="col">Subject</th>
@@ -170,13 +207,22 @@
                     <div
                       class="d-flex flex-column flex-md-row justify-content-between mt-4"
                     >
-                      <p x-show="recentExams.length &lt; 1">No entries found</p>
-                      <p x-show="recentExams.length > 0">
+                      <p
+                        x-show="recentExams.length &lt; 1"
+                        :class="{ 'text-white': theme === 'dark'}"
+                      >
+                        No entries found
+                      </p>
+                      <p
+                        x-show="recentExams.length > 0"
+                        :class="{ 'text-white': theme === 'dark'}"
+                      >
                         Showing
                         <span x-text="firstItem"></span>
                         - <span x-text="lastItem"></span> of
                         <span x-text="recentExams.length"></span> entries
                       </p>
+
                       <nav
                         aria-label="Page navigation"
                         x-show="recentExams.length > itemsPerPage"
@@ -189,6 +235,7 @@
                               @click="goToPage(currentPage - 1)"
                               :disabled="currentPage === 1"
                               class="page-link"
+                              :class="{ 'bg-dark text-white border-secondary': theme === 'dark' }"
                             >
                               <span aria-hidden="true">&laquo;</span>
                             </button>
@@ -202,6 +249,10 @@
                               <button
                                 @click="goToPage(page)"
                                 class="page-link"
+                                :class="{
+                                  'bg-primary text-white border-primary': theme === 'dark' && currentPage === page,
+                                  'bg-dark text-white border-secondary': theme === 'dark' && currentPage !== page
+                                }"
                                 x-text="page"
                               ></button>
                             </li>
@@ -212,6 +263,7 @@
                               @click="goToPage(currentPage + 1)"
                               :disabled="currentPage === totalPages"
                               class="page-link"
+                              :class="{ 'bg-dark text-white border-secondary': theme === 'dark' }"
                             >
                               <span aria-hidden="true">&raquo;</span>
                             </button>
@@ -347,6 +399,8 @@
     <script>
       function recentExams() {
         return {
+          theme: localStorage.getItem("theme") || "light",
+
           exams: [
             {
               id: "EXM001",
@@ -595,6 +649,25 @@
           selectedExam: null,
           showViewExamModal: false,
           showViewResultsModal: false,
+
+          init() {
+            this.applyTheme();
+            this.$watch("theme", (value) => {
+              localStorage.setItem("theme", value);
+              this.applyTheme();
+            });
+          },
+
+          applyTheme() {
+            document.documentElement.classList.toggle(
+              "dark",
+              this.theme === "dark"
+            );
+          },
+
+          toggleTheme() {
+            this.theme = this.theme === "light" ? "dark" : "light";
+          },
 
           get recentExams() {
             return this.exams

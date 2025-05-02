@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html
+  lang="en"
+  x-data="{ theme: localStorage.getItem('theme') || 'light' }"
+  x-init="$watch('theme', value => localStorage.setItem('theme', value))"
+  style="transition: all 0.4s ease"
+>
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -42,7 +47,7 @@
       }
     </style>
   </head>
-  <body>
+  <body x-data="adminDashboard()">
     <div class="wrapper">
       <nav id="sidebar" class="sidebar js-sidebar">
         <div class="sidebar-content js-simplebar">
@@ -95,8 +100,11 @@
         </div>
       </nav>
 
-      <div class="main">
-        <nav class="navbar navbar-expand navbar-light navbar-bg">
+      <div class="main" :class="{ 'bg-dark bg-opacity-50': theme === 'dark' }">
+        <nav
+          class="navbar navbar-expand navbar-light navbar-bg"
+          :class="{ 'bg-dark': theme === 'dark' }"
+        >
           <a class="sidebar-toggle js-sidebar-toggle">
             <i class="hamburger align-self-center"></i>
           </a>
@@ -112,13 +120,39 @@
                   <i class="align-middle" data-feather="settings"></i>
                 </a>
 
+                <!-- Dark Mode Toggle Switch -->
+                <button
+                  type="button"
+                  @click="toggleTheme()"
+                  class="btn btn-sm d-inline-flex gap-2 align-items-center bg-white border border-light rounded-pill"
+                >
+                  <span
+                    class="p-1 d-inline-flex align-items-center justify-content-center rounded-circle small"
+                    :class="theme === 'light' ? 'bg-dark text-white' : 'bg-transparent text-secondary'"
+                    style="width: 20px; height: 20px; transition: all 0.3s ease"
+                    aria-label="Switch to light mode"
+                  >
+                    <i class="bi bi-brightness-high"></i>
+                  </span>
+
+                  <span
+                    class="p-1 d-inline-flex align-items-center justify-content-center rounded-circle small"
+                    :class="theme === 'dark' ? 'bg-dark text-white' : 'bg-transparent text-secondary'"
+                    style="width: 20px; height: 20px; transition: all 0.3s ease"
+                    aria-label="Switch to dark mode"
+                  >
+                    <i class="bi bi-moon"></i>
+                  </span>
+                </button>
+
                 <a
                   class="nav-link dropdown-toggle d-none d-sm-inline-block"
+                  :class="{ 'text-white': theme === 'dark', 'text-dark': theme !== 'dark' }"
                   href="#"
                   data-bs-toggle="dropdown"
                 >
                   <i class="align-middle" data-feather="user"></i>
-                  <span class="text-dark align-middle">John Doe</span>
+                  <span class="align-middle">John Doe</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end">
                   <a class="dropdown-item" href="signIn.html"
@@ -131,15 +165,21 @@
           </div>
         </nav>
 
-        <main class="content" x-data="adminDashboard()">
+        <main class="content">
           <div class="container-fluid p-0">
-            <h1 class="mb-4 text-secondary">Welcome, Admin!</h1>
+            <h1
+              class="mb-4"
+              :class="{ 'text-white': theme === 'dark', 'text-secondary': theme !== 'dark' }"
+            >
+              Welcome, Admin!
+            </h1>
 
             <div class="col-12">
               <div class="row row-cols-1 row-cols-md-3 g-3">
                 <div class="col">
                   <div
                     class="card stat-card py-3 d-flex flex-row justify-content-between align-items-center bg-white"
+                    :class="{ 'bg-dark': theme === 'dark', 'bg-white': theme !== 'dark' }"
                   >
                     <div class="card-body p-0 ms-3">
                       <h5
@@ -149,7 +189,8 @@
                         Total Candidates
                       </h5>
                       <p
-                        class="card-text fs-3 text-dark"
+                        class="card-text fs-3"
+                        :class="{ 'text-white': theme === 'dark', 'text-dark': theme !== 'dark' }"
                         x-text="candidates.length"
                       ></p>
                     </div>
@@ -164,13 +205,15 @@
                 <div class="col">
                   <div
                     class="card stat-card py-3 d-flex flex-row justify-content-between align-items-center bg-white"
+                    :class="{ 'bg-dark': theme === 'dark', 'bg-white': theme !== 'dark' }"
                   >
                     <div class="card-body p-0 ms-3">
                       <h5 class="card-title text-info" style="max-width: 110px">
                         Exams In Progress
                       </h5>
                       <p
-                        class="card-text fs-3 text-dark"
+                        class="card-text fs-3"
+                        :class="{ 'text-white': theme === 'dark', 'text-dark': theme !== 'dark' }"
                         x-text="exams.filter(exam => exam.status === 'In Progress').length"
                       ></p>
                     </div>
@@ -185,6 +228,7 @@
                 <div class="col">
                   <div
                     class="card stat-card py-3 d-flex flex-row justify-content-between align-items-center bg-white"
+                    :class="{ 'bg-dark': theme === 'dark', 'bg-white': theme !== 'dark' }"
                   >
                     <div class="card-body p-0 ms-3">
                       <h5
@@ -194,7 +238,8 @@
                         Completed Exams
                       </h5>
                       <p
-                        class="card-text fs-3 text-dark"
+                        class="card-text fs-3"
+                        :class="{ 'text-white': theme === 'dark', 'text-dark': theme !== 'dark' }"
                         x-text="exams.filter(exam => exam.status === 'Completed').length"
                       ></p>
                     </div>
@@ -214,40 +259,115 @@
                 <div class="card-header bg-success">
                   <h5 class="card-title text-white mb-0">Recent Submissions</h5>
                 </div>
-                <div class="card-body">
-                  <table class="table table-striped table-hover">
-                    <thead>
-                      <tr>
-                        <th scope="col">Candidate</th>
-                        <th scope="col">Exam</th>
-                        <th scope="col">Score</th>
-                        <th scope="col">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <template
-                        x-for="submission in recentSubmissions"
-                        :key="submission.id"
+                <div class="card-body" :class="{ 'bg-dark': theme === 'dark'}">
+                  <div>
+                    <div class="table-responsive">
+                      <table
+                        class="table table-striped table-hover"
+                        :class="{ 'table-dark': theme === 'dark'}"
                       >
-                        <tr>
-                          <td x-text="submission.candidateName"></td>
-                          <td x-text="submission.examName"></td>
-                          <td
-                            x-text="submission.score + '%'"
-                            class="fw-bold"
-                          ></td>
-                          <td>
+                        <thead>
+                          <tr>
+                            <th scope="col">Candidate</th>
+                            <th scope="col">Exam</th>
+                            <th scope="col">Score</th>
+                            <th scope="col">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <template
+                            x-for="submission in paginatedSubmissions"
+                            :key="submission.id"
+                          >
+                            <tr>
+                              <td x-text="submission.candidateName"></td>
+                              <td x-text="submission.examName"></td>
+                              <td
+                                x-text="submission.score + '%'"
+                                class="fw-bold"
+                              ></td>
+                              <td>
+                                <button
+                                  class="btn btn-sm btn-info"
+                                  @click="viewSubmission(submission.id)"
+                                >
+                                  <i class="bi bi-eye"></i> View
+                                </button>
+                              </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div
+                      class="d-flex flex-column flex-md-row justify-content-between mt-4"
+                    >
+                      <p
+                        x-show="submissions.length &lt; 1"
+                        :class="{ 'text-white': theme === 'dark'}"
+                      >
+                        No entries found
+                      </p>
+                      <p
+                        x-show="submissions.length > 0"
+                        :class="{ 'text-white': theme === 'dark'}"
+                      >
+                        Showing
+                        <span x-text="firstItem"></span>
+                        - <span x-text="lastItem"></span> of
+                        <span x-text="submissions.length"></span> entries
+                      </p>
+
+                      <nav
+                        aria-label="Page navigation"
+                        x-show="submissions.length > itemsPerPage"
+                      >
+                        <ul
+                          class="pagination pagination-sm justify-content-center"
+                        >
+                          <li class="page-item">
                             <button
-                              class="btn btn-sm btn-info"
-                              @click="viewSubmission(submission.id)"
+                              @click="goToPage(currentPage - 1)"
+                              :disabled="currentPage === 1"
+                              class="page-link"
+                              :class="{ 'bg-dark text-white border-secondary': theme === 'dark' }"
                             >
-                              <i class="bi bi-eye"></i> View
+                              <span aria-hidden="true">&laquo;</span>
                             </button>
-                          </td>
-                        </tr>
-                      </template>
-                    </tbody>
-                  </table>
+                          </li>
+
+                          <template x-for="page in totalPages" :key="page">
+                            <li
+                              class="page-item"
+                              :class="{'active': currentPage === page}"
+                            >
+                              <button
+                                @click="goToPage(page)"
+                                class="page-link"
+                                :class="{
+                                  'bg-primary text-white border-primary': theme === 'dark' && currentPage === page,
+                                  'bg-dark text-white border-secondary': theme === 'dark' && currentPage !== page
+                                }"
+                                x-text="page"
+                              ></button>
+                            </li>
+                          </template>
+
+                          <li class="page-item">
+                            <button
+                              @click="goToPage(currentPage + 1)"
+                              :disabled="currentPage === totalPages"
+                              class="page-link"
+                              :class="{ 'bg-dark text-white border-secondary': theme === 'dark' }"
+                            >
+                              <span aria-hidden="true">&raquo;</span>
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -261,6 +381,8 @@
     <script>
       function adminDashboard() {
         return {
+          theme: localStorage.getItem("theme") || "light",
+
           exams: [
             {
               id: "EXM001",
@@ -509,7 +631,26 @@
           selectedExam: null,
           showViewExamModal: false,
 
-          get upcomingExams() {
+          init() {
+            this.applyTheme();
+            this.$watch("theme", (value) => {
+              localStorage.setItem("theme", value);
+              this.applyTheme();
+            });
+          },
+
+          applyTheme() {
+            document.documentElement.classList.toggle(
+              "dark",
+              this.theme === "dark"
+            );
+          },
+
+          toggleTheme() {
+            this.theme = this.theme === "light" ? "dark" : "light";
+          },
+
+          get submissions() {
             return this.exams
               .filter(
                 (exam) =>
@@ -533,14 +674,14 @@
               });
           },
 
-          get paginatedExams() {
+          get paginatedSubmissions() {
             const start = (this.currentPage - 1) * this.itemsPerPage;
             const end = this.currentPage * this.itemsPerPage;
-            return this.upcomingExams.slice(start, end);
+            return this.submissions.slice(start, end);
           },
 
           get totalPages() {
-            return Math.ceil(this.upcomingExams.length / this.itemsPerPage);
+            return Math.ceil(this.submissions.length / this.itemsPerPage);
           },
 
           goToPage(page) {
@@ -555,8 +696,8 @@
 
           get lastItem() {
             const end = this.currentPage * this.itemsPerPage;
-            return end > this.upcomingExams.length
-              ? this.upcomingExams.length
+            return end > this.submissions.length
+              ? this.submissions.length
               : end;
           },
         };
