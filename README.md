@@ -8,6 +8,7 @@ git clone https://github.com/De-jola/FLAMES.git
 **CSS Architecture**
 
 The project uses a modular CSS structure:
+
 • `base.css` → Design tokens, global resets, utility classes
 • `components.css` → Section-level component styling
 • `style.css` → Imports and bundles styles
