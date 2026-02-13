@@ -3,6 +3,8 @@ All styling decisions are driven by centralized CSS variables defined in `:root`
 git clone https://github.com/De-jola/FLAMES.git
 ```
 
+**Color System**
+
 The color system uses semantic tokens mapped to brand tokens:
 ```css
   --color-blush-red: #e94b6a;
@@ -11,3 +13,4 @@ The color system uses semantic tokens mapped to brand tokens:
   --color-wine-red: #5a0f2e;
   --color-soft-peach: #ffe3dc;
 ```
+These are mapped to semantic variables:
