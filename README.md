@@ -1,8 +1,3 @@
-All styling decisions are driven by centralized CSS variables defined in `:root` inside `base.css`.
-```bash
-git clone https://github.com/De-jola/FLAMES.git
-```
-
 ## Styling Guide
 
 **CSS Architecture**
@@ -38,3 +33,29 @@ The color system uses semantic tokens mapped to brand tokens:
   --color-soft-peach: #ffe3dc;
 ```
 These are mapped to semantic variables:
+```css
+  --action-primary
+  --action-secondary
+  --text-main
+  --bg-body
+  --bg-nav
+```
+
+**Why This Approach?**
+
+• Prevents hard-coded colors
+
+• Makes theme updates easy
+
+• Improves consistency
+
+• Encourages scalable design
+
+## Links to the Case Study and Design Documents
+
+- [Case Study Document](https://docs.google.com/document/d/10sSPaC7eT5ar5xGpL0Z7Zjgmv5B9D0x_rr76d7eJwi8/edit?usp=sharing)
+- [Design Document](https://docs.google.com/document/d/1vC-gI-Z0wWPh3IMVYmDQaIPncc59SCCFuK3dXT18Fjw/edit?usp=sharing)
+
+---
+
+## Link to the Contribution Sheet
